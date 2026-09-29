@@ -1,0 +1,29 @@
+{
+  "name": "@bowling-rpg/db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Postgres schema and migrations. Imported by apps/api and apps/worker only, never by the mobile app.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "coverage": "vitest run",
+    "generate": "drizzle-kit generate",
+    "check": "drizzle-kit check"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.0"
+  },
+  "devDependencies": {
+    "@bowling-rpg/scoring": "workspace:*",
+    "@electric-sql/pglite": "^0.3.0",
+    "@types/node": "^22.20.4",
+    "drizzle-kit": "^0.31.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
