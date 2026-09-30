@@ -6,8 +6,8 @@ import { buildApp } from '../src/app';
 import { type DomainEvent, EventBus } from '../src/events/bus';
 import { createTokenVerifier } from '../src/plugins/auth';
 
-export const ISSUER = 'https://test-project.supabase.co/auth/v1';
-export const silentLog = { info() {}, warn() {}, error() {} };
+const ISSUER = 'https://test-project.supabase.co/auth/v1';
+const silentLog = { info() {}, warn() {}, error() {} };
 
 /** Signs tokens the way Supabase does: ES256, `sub` = user ID, `role` = authenticated. */
 export async function createSigner(kid = 'test-key') {

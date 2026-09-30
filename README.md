@@ -44,4 +44,3 @@ are applied in `packages/db`:
 
 [`packages/db/README.md`](packages/db/README.md) lists the other differences and
 the tables deferred to later phases.
-# bowling-gamify

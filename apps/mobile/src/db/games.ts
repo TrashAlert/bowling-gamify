@@ -109,11 +109,6 @@ export async function fetchAllGames(db: Db): Promise<RecentGame[]> {
   return withDeliveries(db, games, 'all');
 }
 
-export async function fetchGame(db: Db, gameId: string): Promise<RecentGame | null> {
-  const game = await db.getFirstAsync<GameRow>(`${GAME_COLUMNS} WHERE g.id = ?`, gameId);
-  return game ? ((await withDeliveries(db, [game]))[0] ?? null) : null;
-}
-
 /**
  * Attaches each game's deliveries. With 'all', every delivery is read in one
  * plain query, since an IN list over every game would eventually exceed

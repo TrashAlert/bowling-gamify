@@ -5,7 +5,7 @@ import { AppError, hasIssues, toEnvelope, validationError } from './errors';
 import type { EventBus } from './events/bus';
 import type { Logger } from './logger';
 
-export interface Deps {
+interface Deps {
   readonly db: Database;
   readonly events: EventBus;
 }
@@ -43,7 +43,6 @@ const t = initTRPC.context<Context>().create({
 });
 
 export const router = t.router;
-export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.userId) throw new AppError('UNAUTHENTICATED', 'Sign in to do this.');

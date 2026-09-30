@@ -6,3 +6,6 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+# Per-machine IDE config
+.idea/
+.vscode/
