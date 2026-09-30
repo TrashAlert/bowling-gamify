@@ -4,6 +4,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LevelCard } from '@/components/LevelCard';
+import { ScanScoresheetCard } from '@/components/ScanScoresheetCard';
 import { type RecentGame, fetchRecentGames, startSession } from '@/db/games';
 import { levelsReached } from '@/features/history/load';
 import { useHistory } from '@/features/history/use-history';
@@ -46,6 +47,7 @@ export default function HomeScreen() {
             >
               <Text style={styles.startText}>{openSession ? 'Resume session' : 'Start bowling'}</Text>
             </Pressable>
+            <ScanScoresheetCard />
             {games && games.length > 0 && <Text style={styles.section}>Recent games</Text>}
           </View>
         }

@@ -29,6 +29,8 @@ The Expo app (SDK 57, React Native, Expo Router). It works fully offline:
   - **Strike and spare chart:** rolling rates over the last 30 games.
   - **Reading the charts:** drag across a chart to read any game. **Show numbers**
     gives the same data as a table.
+- **Scan scoresheet** (Home, under Start): a placeholder, shown as "Coming soon" and
+  not tappable. The plan is in [ADR 0002](../../docs/adr/0002-scan-scoresheet.md).
 - **Profile** (your avatar, top right):
   - your name (the avatar shows your initials), bowling hand, level, and favourite
     ball (name, brand, weight);
@@ -83,7 +85,7 @@ Mark the pins **still standing**; everything else fell.
 | Path | Holds |
 | --- | --- |
 | `src/app/` | Routes: `(tabs)/progress`, `(tabs)/add` (the ＋ button's slot, never shown) and `(tabs)/index` (Home), in that order in the tab bar, `(tabs)/bestiary` (hidden), `settings` (opened from the gear), `profile/index` and `profile/edit` (from the avatar), `session/[id]` (live scoring), `game/[id]` (past game's report), `leave/[mask]` (one monster, as a sheet) |
-| `src/components/` | `PinDeck`, `FrameStrip`, `ScoringPad`, `XpBar`, `LevelCard`, `GameReportView`, `SettingRow`, `Avatar`, `ProfileSections`, `FormField`, `StatTile`, `LineChart`, `ChartCard`, `MiniRack`, `MonsterRow` |
+| `src/components/` | `PinDeck`, `FrameStrip`, `ScoringPad`, `XpBar`, `LevelCard`, `GameReportView`, `SettingRow`, `ScanScoresheetCard`, `Avatar`, `ProfileSections`, `FormField`, `StatTile`, `LineChart`, `ChartCard`, `MiniRack`, `MonsterRow` |
 | `src/features/live-scoring/` | The throw-entry rules (`entry.ts`) and the game hook (`use-live-game.ts`) |
 | `src/features/history/` | Loads stored games and derives scores, XP, levels and reports with `@bowling-rpg/progression` |
 | `src/features/progress/` | How Progress presents numbers: deltas, tiles, chart scales |
@@ -113,7 +115,7 @@ them. There's no import yet.
 ## Tests
 
 ```sh
-pnpm test    # 121 tests: throw entry, components, hooks, XP, settings, export, navigation, and the real SQL
+pnpm test    # 123 tests: throw entry, components, hooks, XP, settings, export, navigation, and the real SQL
 pnpm lint
 ```
 
