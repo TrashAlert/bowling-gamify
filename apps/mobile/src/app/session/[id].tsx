@@ -9,6 +9,7 @@ import { GameReportView } from '@/components/GameReportView';
 import { ScoringPad } from '@/components/ScoringPad';
 import { features } from '@/features';
 import { useGameReport } from '@/features/history/use-game-report';
+import { useSettings } from '@/features/settings/settings-context';
 import { useLiveGame } from '@/features/live-scoring/use-live-game';
 import { colors, font, radius, space, touch } from '@/theme';
 
@@ -19,8 +20,7 @@ export default function SessionScreen() {
   const finished = live.status === 'ready' && live.scored.isComplete;
   // Loaded only once the game is over; keyed on ball count so an undo refreshes it.
   const report = useGameReport(db, finished ? live.game.gameId : null, live.status === 'ready' ? live.game.deliveries.length : 0);
-  // Phones sleep after 30s; a frame takes longer than that.
-  useKeepAwake();
+  const { settings } = useSettings();
 
   if (live.status === 'loading') return <SafeAreaView style={styles.screen} />;
   if (live.status === 'missing') {
@@ -47,14 +47,15 @@ export default function SessionScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
+      {settings.keepAwake && <KeepAwake />}
       <ScrollView contentContainerStyle={styles.content} bounces={false}>
         <View style={styles.header}>
-          <View>
+          <View style={styles.scoreBlock}>
             <Text style={styles.muted}>Game {game.gameNumber}</Text>
             <Text style={styles.score} accessibilityLabel={`Score ${scored.scoreSoFar}`}>
               {scored.scoreSoFar}
             </Text>
-            {!scored.isComplete && <Text style={styles.muted}>Best possible {maxPossibleScore(scored)}</Text>}
+            {settings.showBestPossible && !scored.isComplete && <Text style={styles.muted}>Best possible {maxPossibleScore(scored)}</Text>}
           </View>
           <Pressable onPress={confirmEnd} accessibilityRole="button" style={styles.endButton}>
             <Text style={styles.endText}>End</Text>
@@ -91,6 +92,12 @@ export default function SessionScreen() {
   );
 }
 
+/** Phones sleep after 30s; a frame takes longer than that. A component so the hook can be switched off. */
+function KeepAwake() {
+  useKeepAwake();
+  return null;
+}
+
 function Button({ label, onPress, primary = false }: { label: string; onPress: () => void; primary?: boolean }) {
   return (
     <Pressable
@@ -107,7 +114,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   centred: { alignItems: 'center', justifyContent: 'center', gap: space.lg },
   content: { padding: space.lg, gap: space.xl },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  header: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
+  scoreBlock: { flex: 1 },
   score: { color: colors.text, fontSize: font.score, fontWeight: '800' },
   muted: { color: colors.textMuted, fontSize: font.small },
   endButton: { minHeight: touch.min, minWidth: touch.min * 1.5, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: colors.surfaceRaised },

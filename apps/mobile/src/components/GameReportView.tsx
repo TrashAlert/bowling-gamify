@@ -1,8 +1,8 @@
 import type { GameReport, XpGain } from '@bowling-rpg/progression';
 import type { PinMask } from '@bowling-rpg/scoring';
-import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useHaptics } from '@/features/settings/use-haptics';
 import { colors, font, radius, space } from '@/theme';
 import { MonsterRow } from './MonsterRow';
 import { XpBar } from './XpBar';
@@ -19,10 +19,11 @@ export interface GameReportViewProps {
 /** The after-action report: what the game was worth. */
 export function GameReportView({ report, xp, showMonsters = false, onMonsterPress }: GameReportViewProps) {
   const leveledUp = xp !== undefined && xp.levelsGained > 0;
+  const haptics = useHaptics();
 
   useEffect(() => {
-    if (leveledUp) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  }, [leveledUp]);
+    if (leveledUp) haptics.success();
+  }, [leveledUp, haptics]);
 
   return (
     <View style={styles.report}>

@@ -3,9 +3,9 @@ import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LevelCard } from '@/components/LevelCard';
 import { type RecentGame, fetchRecentGames, startSession } from '@/db/games';
+import { levelsReached } from '@/features/history/load';
 import { useHistory } from '@/features/history/use-history';
 import { formatDay } from '@/lib/format';
 import { colors, font, radius, space, touch } from '@/theme';
@@ -14,6 +14,7 @@ export default function HomeScreen() {
   const db = useSQLiteContext();
   const [games, setGames] = useState<RecentGame[] | null>(null);
   const history = useHistory(db);
+  const reached = history ? levelsReached(history) : null;
 
   // Reload whenever Home comes back into view, e.g. after a session ends.
   useFocusEffect(
@@ -29,7 +30,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
+    <View style={styles.screen}>
       <FlatList
         data={games ?? []}
         keyExtractor={(g) => g.gameId}
@@ -51,13 +52,13 @@ export default function HomeScreen() {
         ListEmptyComponent={
           games ? <Text style={styles.empty}>Log your first game. Every ball is saved on your phone as you go.</Text> : null
         }
-        renderItem={({ item }) => <GameRow game={item} />}
+        renderItem={({ item }) => <GameRow game={item} levelReached={reached?.get(item.gameId)} />}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
-function GameRow({ game }: { game: RecentGame }) {
+function GameRow({ game, levelReached }: { game: RecentGame; levelReached: number | undefined }) {
   const result = scoreGame(game.deliveries);
   const scored = result.ok ? result.game : null;
   const inProgress = game.sessionOpen && !scored?.isComplete;
@@ -77,6 +78,7 @@ function GameRow({ game }: { game: RecentGame }) {
           {formatDay(game.startedAt)}
           {state ? ` · ${state}` : ''}
         </Text>
+        {levelReached !== undefined && <Text style={styles.levelUp}>★ Reached level {levelReached}</Text>}
       </View>
       <Text style={styles.rowScore}>{scored?.scoreSoFar ?? '—'}</Text>
     </Pressable>
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: space.lg, gap: space.sm },
   header: { gap: space.xl, marginBottom: space.md },
-  title: { color: colors.text, fontSize: font.title, fontWeight: '800', marginTop: space.lg },
+  title: { color: colors.text, fontSize: font.title, fontWeight: '800' },
   start: { minHeight: touch.primary * 1.4, borderRadius: radius.lg, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
   startText: { color: colors.accentText, fontSize: font.title, fontWeight: '800' },
   section: { color: colors.textMuted, fontSize: font.small, textTransform: 'uppercase', letterSpacing: 1 },
@@ -102,5 +104,6 @@ const styles = StyleSheet.create({
   },
   rowTitle: { color: colors.text, fontSize: font.body, fontWeight: '600' },
   rowMeta: { color: colors.textMuted, fontSize: font.small, marginTop: 2 },
+  levelUp: { color: colors.accent, fontSize: font.small, fontWeight: '700', marginTop: 2 },
   rowScore: { color: colors.text, fontSize: font.title, fontWeight: '800' },
 });

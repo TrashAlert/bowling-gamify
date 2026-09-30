@@ -2,7 +2,6 @@ import { conversionRate } from '@bowling-rpg/progression';
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { MonsterRow } from '@/components/MonsterRow';
 import { useHistory } from '@/features/history/use-history';
 import { formatPercent } from '@/lib/format';
@@ -15,7 +14,7 @@ export default function BestiaryScreen() {
   const slain = entries.reduce((sum, e) => sum + e.conversions, 0);
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
+    <View style={styles.screen}>
       <FlatList
         data={entries}
         keyExtractor={(e) => String(e.leave)}
@@ -48,14 +47,14 @@ export default function BestiaryScreen() {
           />
         )}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: space.lg, gap: space.sm },
-  header: { gap: space.xs, marginTop: space.lg, marginBottom: space.md },
+  header: { gap: space.xs, marginBottom: space.md },
   title: { color: colors.text, fontSize: font.title, fontWeight: '800' },
   summary: { color: colors.textMuted, fontSize: font.small },
   empty: { color: colors.textMuted, fontSize: font.body, lineHeight: 22, marginTop: space.lg },

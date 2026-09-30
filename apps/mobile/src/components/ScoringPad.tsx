@@ -1,8 +1,8 @@
 import { type DeliveryInput, EMPTY, type NextDelivery, type PinMask, type PinNumber, pinBit } from '@bowling-rpg/scoring';
-import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { primaryAction, toDelivery } from '@/features/live-scoring/entry';
+import { useHaptics } from '@/features/settings/use-haptics';
 import { colors, font, radius, space, touch } from '@/theme';
 import { PinDeck } from './PinDeck';
 
@@ -20,10 +20,11 @@ export interface ScoringPadProps {
 export function ScoringPad({ next, onRecord, onUndo, canUndo }: ScoringPadProps) {
   const [selected, setSelected] = useState<PinMask>(EMPTY);
   const [foul, setFoul] = useState(false);
+  const haptics = useHaptics();
   const action = primaryAction(next, selected, foul);
 
   const record = (leftStanding: PinMask) => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    haptics.impact();
     onRecord(toDelivery(next.standing, leftStanding, foul));
   };
   const toggle = (pin: PinNumber) => setSelected((mask) => (mask ^ pinBit(pin)) as PinMask);

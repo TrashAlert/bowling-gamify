@@ -14,7 +14,7 @@ A gamified ten-pin bowling tracker. See the technical design doc for the full pl
 | `apps/api` | Supabase token auth, sync ingest endpoint, 29 tests. No rate limiting or deploy build yet |
 | `packages/progression` | XP and levels, reports and bestiary done, 33 tests. Attributes blocked on which ship in v1 |
 | `apps/worker`, Redis, Docker, Fly | Not started |
-| `apps/mobile` (Expo, React Native) | Live scoring, XP and levels, after-action report, 50 tests. Bestiary built but hidden. Offline only, runs in Expo Go. No sign-in or sync yet |
+| `apps/mobile` (Expo, React Native) | Live scoring, XP and levels, after-action report, settings with export and delete, 64 tests. Bestiary built but hidden. Offline only, runs in Expo Go. No sign-in or sync yet |
 
 ## Getting started
 

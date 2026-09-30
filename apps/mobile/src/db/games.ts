@@ -45,6 +45,12 @@ export async function startNextGame(db: Db, sessionId: string): Promise<string> 
   return gameId;
 }
 
+/** The most recent session that hasn't been ended, if any. */
+export async function fetchOpenSessionId(db: Db): Promise<string | null> {
+  const row = await db.getFirstAsync<{ id: string }>('SELECT id FROM sessions WHERE ended_at IS NULL ORDER BY started_at DESC LIMIT 1');
+  return row?.id ?? null;
+}
+
 /** The session's latest game with its deliveries in order, or null if the session doesn't exist. */
 export async function fetchCurrentGame(db: Db, sessionId: string): Promise<StoredGame | null> {
   const game = await db.getFirstAsync<{ id: string; game_number: number }>(

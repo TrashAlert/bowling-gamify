@@ -38,6 +38,33 @@ export async function loadHistory(db: Db): Promise<History> {
   return { games, bestiary: buildBestiary(games), progression: buildProgression(games) };
 }
 
+export interface GameStats {
+  /** Finished games; unfinished ones earn no XP and don't count. */
+  readonly games: number;
+  readonly average: number;
+  readonly best: number;
+}
+
+/** Progress's numbers, over finished games only. Average is rounded to a whole pin. */
+export function gameStats(history: History): GameStats {
+  const scores = history.games.filter((g) => g.scored.isComplete).map((g) => g.scored.scoreSoFar);
+  const total = scores.reduce((sum, score) => sum + score, 0);
+  return {
+    games: scores.length,
+    average: scores.length === 0 ? 0 : Math.round(total / scores.length),
+    best: scores.reduce((max, score) => Math.max(max, score), 0),
+  };
+}
+
+/** Game ID → the level it took the bowler to, for games that levelled them up. */
+export function levelsReached(history: History): ReadonlyMap<string, number> {
+  const reached = new Map<string, number>();
+  for (const gain of history.progression.gains) {
+    if (gain.levelsGained > 0) reached.set(gain.gameId, gain.after.level);
+  }
+  return reached;
+}
+
 export interface Attempt {
   readonly game: LoadedGame;
   readonly encounter: Encounter;

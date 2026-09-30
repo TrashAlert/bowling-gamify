@@ -8,7 +8,7 @@ import { GameReportView } from '@/components/GameReportView';
 import { LevelCard } from '@/components/LevelCard';
 import { MiniRack } from '@/components/MiniRack';
 import { appendDelivery, endSession, startNextGame, startSession } from '@/db/games';
-import { attemptsAt, loadGameReport, loadHistory } from '@/features/history/load';
+import { attemptsAt, gameStats, levelsReached, loadGameReport, loadHistory } from '@/features/history/load';
 import { useGameReport } from '@/features/history/use-game-report';
 import { useHistory } from '@/features/history/use-history';
 import { formatDay, formatPercent } from '@/lib/format';
@@ -191,6 +191,26 @@ describe('XP and levels', () => {
     expect(screen.getByText('200 XP to level 2 · 300 XP total')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button'));
     expect(onPress).toHaveBeenCalled();
+  });
+});
+
+describe('Progress numbers and Home level markers', () => {
+  it('count finished games only', async () => {
+    await bowl(PERFECT, NINE_SPARES, [leave(10), hit(10)]);
+    expect(gameStats(await loadHistory(db))).toEqual({ games: 2, average: 245, best: 300 });
+  });
+
+  it('are zero with nothing bowled', async () => {
+    expect(gameStats(await loadHistory(db))).toEqual({ games: 0, average: 0, best: 0 });
+  });
+
+  it('mark the games that reached a new level', async () => {
+    // 300, then 600 (level 2 at 500), then 790 (level 3 is 1250, so no marker).
+    const [first, second, third] = await bowl(PERFECT, PERFECT, NINE_SPARES);
+    const reached = levelsReached(await loadHistory(db));
+    expect([...reached]).toEqual([[second, 2]]);
+    expect(reached.has(first!)).toBe(false);
+    expect(reached.has(third!)).toBe(false);
   });
 });
 

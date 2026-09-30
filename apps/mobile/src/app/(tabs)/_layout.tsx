@@ -1,13 +1,28 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { Alert, Pressable } from 'react-native';
+import { AddGameButton } from '@/components/AddGameButton';
+import { endSession } from '@/db/games';
 import { features } from '@/features';
-import { colors } from '@/theme';
+import { useAddGame } from '@/features/live-scoring/use-add-game';
+import { useGameInProgress } from '@/features/live-scoring/use-game-in-progress';
+import { colors, space, touch } from '@/theme';
 
+/**
+ * The app opens on Home even though it isn't the first tab: the starting URL
+ * is "/", which is (tabs)/index.
+ */
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        // A bare header whose only job is the Settings gear, top left on every tab.
+        headerShown: true,
+        headerTitle: '',
+        headerShadowVisible: false,
+        headerStyle: { backgroundColor: colors.background },
+        headerLeft: () => <SettingsButton />,
         sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
         tabBarActiveTintColor: colors.accent,
@@ -15,12 +30,14 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
-        options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} /> }}
-      />
-      <Tabs.Screen
         name="progress"
         options={{ title: 'Progress', tabBarIcon: ({ color, size }) => <Ionicons name="trophy" size={size} color={color} /> }}
+      />
+      {/* Not a page: the button adds a game, or offers to continue or stop an unfinished one. */}
+      <Tabs.Screen name="add" options={{ title: 'Add game', tabBarButton: () => <AddGameTab /> }} />
+      <Tabs.Screen
+        name="index"
+        options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="bestiary"
@@ -31,5 +48,47 @@ export default function TabsLayout() {
         }
       />
     </Tabs>
+  );
+}
+
+function AddGameTab() {
+  const db = useSQLiteContext();
+  const addGame = useAddGame(db);
+  const { game, refresh } = useGameInProgress(db);
+
+  if (!game) return <AddGameButton mode="add" onPress={() => void addGame()} />;
+
+  const frame = game.scored.next?.frameNumber ?? 10;
+  const choose = () =>
+    Alert.alert(
+      `Game ${game.gameNumber} in progress`,
+      `Frame ${frame}, score ${game.scored.scoreSoFar}. Every ball so far is saved. Stopping ends the session and keeps this game as unfinished.`,
+      [
+        { text: 'Stop game', style: 'destructive', onPress: () => void endSession(db, game.sessionId).then(refresh) },
+        { text: 'Continue', isPreferred: true, onPress: () => router.push(`/session/${game.sessionId}`) },
+      ],
+      { cancelable: true },
+    );
+  return <AddGameButton mode="paused" onPress={choose} />;
+}
+
+function SettingsButton() {
+  return (
+    <Pressable
+      onPress={() => router.push('/settings')}
+      accessibilityRole="button"
+      accessibilityLabel="Settings"
+      hitSlop={space.sm}
+      style={({ pressed }) => ({
+        width: touch.min,
+        height: touch.min,
+        marginLeft: space.sm,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
+      <Ionicons name="settings-outline" size={24} color={colors.text} />
+    </Pressable>
   );
 }

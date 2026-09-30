@@ -1,6 +1,6 @@
 import { type PinMask, type PinNumber, isStanding } from '@bowling-rpg/scoring';
-import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useHaptics } from '@/features/settings/use-haptics';
 import { colors, font, radius, space, touch } from '@/theme';
 
 /** Back row first, as the bowler sees the rack from the approach. */
@@ -19,6 +19,7 @@ export interface PinDeckProps {
  * so each pin is a real accessible checkbox for VoiceOver and TalkBack.
  */
 export function PinDeck({ standing, selected, onToggle }: PinDeckProps) {
+  const haptics = useHaptics();
   return (
     <View style={styles.deck} accessibilityRole="none">
       {ROWS.map((row) => (
@@ -32,7 +33,7 @@ export function PinDeck({ standing, selected, onToggle }: PinDeckProps) {
                 testID={`pin-${pin}`}
                 disabled={!available}
                 onPress={() => {
-                  void Haptics.selectionAsync();
+                  haptics.selection();
                   onToggle(pin);
                 }}
                 hitSlop={space.xs}

@@ -29,6 +29,12 @@ const MIGRATIONS: readonly string[] = [
   );
   CREATE INDEX sessions_started_idx ON sessions (started_at DESC);
   `,
+  `
+  CREATE TABLE settings (
+    key         TEXT PRIMARY KEY,
+    value       TEXT NOT NULL               -- JSON
+  );
+  `,
 ];
 
 export const SCHEMA_VERSION = MIGRATIONS.length;

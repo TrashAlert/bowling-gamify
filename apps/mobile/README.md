@@ -9,7 +9,24 @@ The Expo app (SDK 57, React Native, Expo Router). It works fully offline:
 - **After-action report:** at the end of each game, and for any past game from Home
   or Progress. It shows the XP earned, the bar filling up, a **LEVEL UP** banner with
   a haptic when you reach one, and strikes, spares, open frames and splits.
-- **Progress tab:** level, games, average and best XP, and your XP history.
+- **Tab bar:** Progress | **＋** | Home. The ＋ button goes straight into bowling:
+  - no session open: it starts one;
+  - the last game is finished: it adds the next game.
+- **Pausing:** swiping back from a game (or Android's back button) leaves it
+  unfinished. The ＋ then turns into a **play/pause** icon, and tapping it asks:
+  - **Continue:** back into the game;
+  - **Stop game:** ends the session, keeping the game as unfinished.
+
+- **Home:** your level, a Start/Resume button, and your recent games. Games that took
+  you to a new level are marked ★. Tap a game for its report.
+- **Progress tab:** the long view: your level, finished games, average and best score.
+  The list of games lives only on Home.
+- **Settings** (the gear, top left):
+  - Switches for vibration, keeping the screen awake during a session, and showing
+    the best possible score.
+  - **Export all games** to a JSON file through the share sheet.
+  - **Delete all games**, with a confirmation.
+  - The app version and how many games are stored.
 - **Bestiary:** built but hidden. Set `features.bestiary` in `src/features.ts` to `true`
   to bring back its tab and the monster list in reports.
 
@@ -44,19 +61,20 @@ Mark the pins **still standing**; everything else fell.
 **Safety:**
 - Every ball is written to SQLite before the screen updates.
 - The screen stays awake.
-- Swipe-back is disabled.
+- Swiping back (or Android's back button) only pauses the game; see below.
 - A double tap on the main button records one ball, not two.
 
 ## Code
 
 | Path | Holds |
 | --- | --- |
-| `src/app/` | Routes: `(tabs)/index` (Home), `(tabs)/progress`, `(tabs)/bestiary` (hidden), `session/[id]` (live scoring, full-screen modal), `game/[id]` (past game's report), `leave/[mask]` (one monster, as a sheet) |
-| `src/components/` | `PinDeck`, `FrameStrip`, `ScoringPad`, `XpBar`, `LevelCard`, `GameReportView`, `MiniRack`, `MonsterRow` |
+| `src/app/` | Routes: `(tabs)/progress`, `(tabs)/add` (the ＋ button's slot, never shown) and `(tabs)/index` (Home), in that order in the tab bar, `(tabs)/bestiary` (hidden), `settings` (opened from the gear), `session/[id]` (live scoring), `game/[id]` (past game's report), `leave/[mask]` (one monster, as a sheet) |
+| `src/components/` | `PinDeck`, `FrameStrip`, `ScoringPad`, `XpBar`, `LevelCard`, `GameReportView`, `SettingRow`, `MiniRack`, `MonsterRow` |
 | `src/features/live-scoring/` | The throw-entry rules (`entry.ts`) and the game hook (`use-live-game.ts`) |
 | `src/features/history/` | Loads stored games and derives scores, XP, levels and reports with `@bowling-rpg/progression` |
+| `src/features/settings/` | The settings provider, `useHaptics` (the only place that calls expo-haptics), and export |
 | `src/features.ts` | Switches for built-but-hidden features |
-| `src/db/` | SQLite migrations and every query |
+| `src/db/` | SQLite migrations and every query: games, settings, export and delete |
 | `src/theme.ts` | Design tokens. No colour or size value lives anywhere else |
 
 **Storage:** the phone stores only raw balls: the `knocked` mask and a foul flag.
@@ -65,10 +83,17 @@ time a game is loaded, the same code the server runs.
 
 **IDs** are UUIDv7. A session's ID becomes its sync `clientId`.
 
+**Settings** live in their own SQLite table as JSON values over defaults, so adding a
+setting needs no migration: add it to `DEFAULT_SETTINGS` in `src/db/settings.ts`.
+
+**Exports** use the sync upload's shape (sessions → games → raw deliveries,
+`format: "bowling-rpg.export"`, `version: 1`), so a future import or upload can read
+them. There's no import yet.
+
 ## Tests
 
 ```sh
-pnpm test    # 50 tests: throw entry, components, hooks, XP and history loading, and the real SQL
+pnpm test    # 83 tests: throw entry, components, hooks, XP, settings, export, navigation, and the real SQL
 pnpm lint
 ```
 
