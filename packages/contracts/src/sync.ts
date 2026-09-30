@@ -86,16 +86,24 @@ export const SyncSessionsInput = z
   });
 
 /**
- * Why one session in a batch was refused. Neither is fixed by retrying: the
- * client stops resending the session, keeps it on the phone, and flags it.
+ * Why one session in a batch was refused. The client keeps a rejected session on
+ * the phone. An illegal or mis-scored game won't change on a resend, so it's
+ * flagged to the user. An unknown reference clears once the missing ball syncs.
  */
-export const SessionRejectionCode = ErrorCode.extract(['SESSION_ILLEGAL_GAME', 'SESSION_SCORE_MISMATCH']);
+export const SessionRejectionCode = ErrorCode.extract(['SESSION_ILLEGAL_GAME', 'SESSION_SCORE_MISMATCH', 'SESSION_UNKNOWN_REFERENCE']);
 
 export const SyncSessionsOutput = z.object({
   /** Includes sessions the server already had. A retried upload is accepted again, not rejected. */
   accepted: z.array(z.object({ clientId: ClientSessionId, serverId: SessionId })),
-  rejected: z.array(z.object({ clientId: ClientSessionId, code: SessionRejectionCode, message: z.string() })),
-  /** Null when nothing new was accepted, so there is nothing to derive. */
+  rejected: z.array(
+    z.object({
+      clientId: ClientSessionId,
+      code: SessionRejectionCode,
+      message: z.string(),
+      details: z.record(z.string(), z.unknown()).optional(),
+    }),
+  ),
+  /** Null when nothing new was accepted, and until the derivation worker exists. */
   derivationJobId: z.string().nullable(),
 });
 

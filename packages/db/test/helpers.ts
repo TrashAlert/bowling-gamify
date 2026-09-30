@@ -1,31 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
-import { PGlite } from '@electric-sql/pglite';
 import { type DeliveryInput, scoreGame } from '@bowling-rpg/scoring';
-import { sql } from 'drizzle-orm';
-import { type PgliteDatabase, drizzle } from 'drizzle-orm/pglite';
-import { migrate } from 'drizzle-orm/pglite/migrator';
 import * as schema from '../src/schema';
+import { type TestDb } from '../src/testing';
 
-export type Db = PgliteDatabase<typeof schema>;
-
-/**
- * A fresh in-process Postgres (PGlite: the real server compiled to WASM), with
- * a stand-in for Supabase's `auth.users` and every migration applied.
- */
-export async function createTestDb(): Promise<Db> {
-  const client = new PGlite();
-  await client.exec('CREATE SCHEMA auth; CREATE TABLE auth.users (id uuid PRIMARY KEY);');
-  const db = drizzle(client, { schema });
-  await migrate(db, { migrationsFolder: fileURLToPath(new URL('../migrations', import.meta.url)) });
-  return db;
-}
-
-export async function createUser(db: Db): Promise<string> {
-  const id = randomUUID();
-  await db.execute(sql`INSERT INTO auth.users (id) VALUES (${id})`);
-  return id;
-}
+export { createTestDb, createUser } from '../src/testing';
+export type Db = TestDb;
 
 export async function createSession(db: Db, userId: string): Promise<string> {
   const [row] = await db

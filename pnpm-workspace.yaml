@@ -3,3 +3,8 @@ packages:
   - "packages/*"
 allowBuilds:
   esbuild: true
+  # Its postinstall only re-checks the native binding, which arrives via optionalDependencies.
+  unrs-resolver: false
+# Expo native builds must contain exactly one copy of each native module; isolated
+# installs produced duplicate expo/expo-asset instances (same version, different peers).
+nodeLinker: hoisted

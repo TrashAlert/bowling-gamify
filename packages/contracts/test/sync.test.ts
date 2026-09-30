@@ -117,10 +117,11 @@ describe('errors', () => {
   });
 
   it('parses the envelope', () => {
-    const envelope = {
-      error: { code: 'SESSION_SCORE_MISMATCH', message: 'm', details: { gameNumber: 2 }, traceId: '4bf92f3577b34da6' },
-    };
+    const data = { code: 'SESSION_SCORE_MISMATCH', httpStatus: 409, details: { gameNumber: 2 }, traceId: '4bf92f3577b34da6' };
+    const envelope = { error: { message: 'm', code: -32009, data } };
     expect(ErrorEnvelope.parse(envelope)).toEqual(envelope);
-    expect(ErrorEnvelope.safeParse({ error: { ...envelope.error, code: 'NOPE' } }).success).toBe(false);
+    expect(ErrorEnvelope.safeParse({ error: { ...envelope.error, data: { ...data, code: 'NOPE' } } }).success).toBe(false);
+    // The tRPC client rejects a string here, so the schema must too.
+    expect(ErrorEnvelope.safeParse({ error: { ...envelope.error, code: 'CONFLICT' } }).success).toBe(false);
   });
 });

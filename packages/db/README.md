@@ -71,6 +71,9 @@ could enforce it, but `ON DELETE SET NULL` would then also null out `user_id`.
 
 ## Testing
 
+`@bowling-rpg/db/testing` exports `createTestDb()` and `createUser()`, and the API's
+tests use them too.
+
 Tests run on [PGlite](https://pglite.dev): the real Postgres server compiled to WASM,
 in-process. Bit operators, generated columns, partial indexes and triggers all behave
 as they do in production, and CI needs no Docker. Supabase's `auth.users` is stubbed

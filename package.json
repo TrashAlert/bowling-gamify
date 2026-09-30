@@ -2,11 +2,16 @@
   "name": "bowling-rpg",
   "private": true,
   "packageManager": "pnpm@12.6.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
+    "dev:mobile": "pnpm --filter @bowling-rpg/mobile dev",
+    "dev:api": "pnpm --filter @bowling-rpg/api dev",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "coverage": "turbo run coverage"
+    "coverage": "turbo run coverage",
+    "lint": "turbo run lint"
   },
   "devDependencies": {
     "turbo": "^2.5.0",

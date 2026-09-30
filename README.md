@@ -6,14 +6,15 @@ A gamified ten-pin bowling tracker. See the technical design doc for the full pl
 
 | Piece | State |
 | --- | --- |
-| Monorepo, strict TypeScript, Turborepo, CI | Done. Not yet a git repo, so CI hasn't run |
+| Monorepo, strict TypeScript, Turborepo, CI | Done. CI runs typecheck, lint and coverage |
 | `packages/scoring` | Done: 130 tests, 100% coverage |
 | `packages/contracts` (Zod schemas) | Sync upload and error envelope done |
 | `packages/db` (Drizzle schema + migrations) | Phase 1–2 tables done, 27 tests against real Postgres |
 | ADR 0001: split definition | Proposed, needs sign-off |
-| `packages/progression` | Blocked on which attributes ship in v1 |
-| `apps/api` skeleton with Supabase Auth | Not started |
-| `apps/mobile` shell | Not started |
+| `apps/api` | Supabase token auth, sync ingest endpoint, 29 tests. No rate limiting or deploy build yet |
+| `packages/progression` | XP and levels, reports and bestiary done, 33 tests. Attributes blocked on which ship in v1 |
+| `apps/worker`, Redis, Docker, Fly | Not started |
+| `apps/mobile` (Expo, React Native) | Live scoring, XP and levels, after-action report, 50 tests. Bestiary built but hidden. Offline only, runs in Expo Go. No sign-in or sync yet |
 
 ## Getting started
 
@@ -23,7 +24,10 @@ Requires Node 22 and Corepack. No Docker: database tests run on PGlite.
 corepack enable
 pnpm install
 pnpm test        # typecheck + tests, every package
+pnpm lint
 pnpm coverage
+pnpm dev:mobile  # Expo dev server; scan the QR code with Expo Go
+pnpm dev:api     # the API, once apps/api/.env exists
 ```
 
 ## Changes from the design doc
