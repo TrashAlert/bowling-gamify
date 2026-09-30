@@ -18,6 +18,21 @@ export const colors = {
   success: '#5CD18A',
 } as const;
 
+/**
+ * Chart colours. The two series were checked with the dataviz palette validator
+ * against `colors.surface` (the chart card): colour-blind ΔE 26.8, normal-vision
+ * ΔE 31.8, both ≥ 3:1 contrast. Re-run it if either value or the surface changes.
+ * Series 1 is the story; `context` is for marks that are background to it.
+ */
+export const chart = {
+  series1: '#3987e5',
+  series2: '#d95926',
+  context: colors.textMuted,
+  grid: colors.border,
+  axisText: colors.textMuted,
+  crosshair: colors.textMuted,
+} as const;
+
 /** Monster tiers, 1 (Minion) to 5 (Boss). Always shown with the tier name too, never by colour alone. */
 export const tierColors = {
   1: '#8A94A6',

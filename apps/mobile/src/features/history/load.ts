@@ -1,13 +1,17 @@
 import {
   type BestiaryEntry,
   type Encounter,
+  type Form,
+  type GameMetrics,
   type GameReport,
   type Progression,
   type XpGain,
   buildBestiary,
   buildProgression,
   encountersIn,
+  metricsFor,
   reportFor,
+  rollingForm,
 } from '@bowling-rpg/progression';
 import { type PinMask, type ScoredGame, scoreGame } from '@bowling-rpg/scoring';
 import { type Db, type RecentGame, fetchAllGames } from '@/db/games';
@@ -54,6 +58,22 @@ export function gameStats(history: History): GameStats {
     average: scores.length === 0 ? 0 : Math.round(total / scores.length),
     best: scores.reduce((max, score) => Math.max(max, score), 0),
   };
+}
+
+/** One finished game on the Progress charts. */
+export interface ProgressPoint {
+  readonly game: LoadedGame;
+  readonly metrics: GameMetrics;
+  /** Form over this game and the few before it. */
+  readonly rolling: Form;
+}
+
+/** Finished games, oldest first, with their counts and rolling form. */
+export function progressPoints(history: History): ProgressPoint[] {
+  const finished = history.games.filter((g) => g.scored.isComplete);
+  const metrics = finished.map((g) => metricsFor(g.scored));
+  const rolling = rollingForm(metrics);
+  return finished.map((game, i) => ({ game, metrics: metrics[i]!, rolling: rolling[i]! }));
 }
 
 /** Game ID → the level it took the bowler to, for games that levelled them up. */

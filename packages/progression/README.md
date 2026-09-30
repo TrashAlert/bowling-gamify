@@ -24,6 +24,17 @@ now). Attributes and ranks come once v1's attributes are decided.
   Since XP is recomputed from raw balls, retuning changes every bowler's history
   consistently.
 
+## Stats
+
+`stats.ts` turns scored games into improvement numbers.
+- **Per-game counts:** strikes out of strike chances (every ball at a fresh rack,
+  including tenth-frame fills), spares out of leaves shot at, and open frames.
+- **Rates are pooled** across games (total made ÷ total chances), so one game with a
+  single spare chance can't swing a rate.
+- **`rollingForm`:** a 5-game trailing window for trends.
+- **`compareForm`:** your last 10 games against the 10 before, or half-and-half with
+  fewer than 20. It needs at least 4 games.
+
 ## Bestiary rules
 
 - **An encounter is one spare attempt.** A legal ball at a fresh rack leaves pins,
@@ -50,5 +61,5 @@ Nothing here is stored as the only copy of anything. The phone rebuilds the best
 from raw balls on every load, so changing a rule changes all of history.
 
 ```sh
-pnpm test   # 33 tests, 100% coverage required
+pnpm test   # 42 tests, 100% coverage required
 ```

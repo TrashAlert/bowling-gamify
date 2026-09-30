@@ -91,6 +91,7 @@ async function renderApp() {
       '(tabs)/add': () => <Text>add screen</Text>,
       '(tabs)/bestiary': () => <Text>bestiary screen</Text>,
       settings: () => <Text>settings screen</Text>,
+      'profile/index': () => <Text>profile screen</Text>,
       'session/[id]': () => <Text>session screen</Text>,
     },
     { initialUrl: '/' },
@@ -116,6 +117,12 @@ describe('navigation', () => {
     await renderApp();
     await fireEvent.press(screen.getByLabelText('Settings'));
     expect(await screen.findByText('settings screen')).toBeOnTheScreen();
+  });
+
+  it('opens your profile from the avatar, top right', async () => {
+    await renderApp();
+    await fireEvent.press(screen.getByLabelText('Profile'));
+    expect(await screen.findByText('profile screen')).toBeOnTheScreen();
   });
 
   it('opens a new game from +', async () => {

@@ -3,10 +3,12 @@ import { Tabs, router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, Pressable } from 'react-native';
 import { AddGameButton } from '@/components/AddGameButton';
+import { Avatar } from '@/components/Avatar';
 import { endSession } from '@/db/games';
 import { features } from '@/features';
 import { useAddGame } from '@/features/live-scoring/use-add-game';
 import { useGameInProgress } from '@/features/live-scoring/use-game-in-progress';
+import { useProfile } from '@/features/profile/profile-context';
 import { colors, space, touch } from '@/theme';
 
 /**
@@ -17,12 +19,13 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        // A bare header whose only job is the Settings gear, top left on every tab.
+        // A bare header: the Settings gear top left, your profile top right, on every tab.
         headerShown: true,
         headerTitle: '',
         headerShadowVisible: false,
         headerStyle: { backgroundColor: colors.background },
         headerLeft: () => <SettingsButton />,
+        headerRight: () => <ProfileButton />,
         sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
         tabBarActiveTintColor: colors.accent,
@@ -70,6 +73,28 @@ function AddGameTab() {
       { cancelable: true },
     );
   return <AddGameButton mode="paused" onPress={choose} />;
+}
+
+function ProfileButton() {
+  const { profile } = useProfile();
+  return (
+    <Pressable
+      onPress={() => router.push('/profile')}
+      accessibilityRole="button"
+      accessibilityLabel="Profile"
+      hitSlop={space.sm}
+      style={({ pressed }) => ({
+        width: touch.min,
+        height: touch.min,
+        marginRight: space.sm,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
+      <Avatar name={profile.displayName} size={32} />
+    </Pressable>
+  );
 }
 
 function SettingsButton() {

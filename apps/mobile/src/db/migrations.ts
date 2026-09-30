@@ -35,6 +35,16 @@ const MIGRATIONS: readonly string[] = [
     value       TEXT NOT NULL               -- JSON
   );
   `,
+  `
+  CREATE TABLE profile (
+    id             INTEGER PRIMARY KEY CHECK (id = 1),   -- one row: this phone's bowler
+    display_name   TEXT CHECK (display_name IS NULL OR length(display_name) BETWEEN 1 AND 30),
+    hand           TEXT CHECK (hand IN ('right', 'left')),
+    ball_name      TEXT CHECK (ball_name IS NULL OR length(ball_name) BETWEEN 1 AND 40),
+    ball_brand     TEXT CHECK (ball_brand IS NULL OR length(ball_brand) BETWEEN 1 AND 40),
+    ball_weight_lb INTEGER CHECK (ball_weight_lb BETWEEN 6 AND 16)
+  );
+  `,
 ];
 
 export const SCHEMA_VERSION = MIGRATIONS.length;

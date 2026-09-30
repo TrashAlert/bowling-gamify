@@ -19,8 +19,22 @@ The Expo app (SDK 57, React Native, Expo Router). It works fully offline:
 
 - **Home:** your level, a Start/Resume button, and your recent games. Games that took
   you to a new level are marked ★. Tap a game for its report.
-- **Progress tab:** the long view: your level, finished games, average and best score.
-  The list of games lives only on Home.
+- **Progress tab:** stats and trends over finished games. The list of games lives
+  only on Home.
+  - **Totals:** Games, Average and Best.
+  - **Recent form:** your last 10 games against the 10 before (half-and-half with
+    fewer than 20). It covers average, strike rate, spare rate and open frames per
+    game, each with an arrowed, signed change.
+  - **Score chart:** each game as a dot, with a 5-game average line.
+  - **Strike and spare chart:** rolling rates over the last 30 games.
+  - **Reading the charts:** drag across a chart to read any game. **Show numbers**
+    gives the same data as a table.
+- **Profile** (your avatar, top right):
+  - your name (the avatar shows your initials), bowling hand, level, and favourite
+    ball (name, brand, weight);
+  - an Edit sheet with checks, e.g. a weight must be 6–16 lb;
+  - **Badges** and **Achievements** are placeholders, shown locked as "Coming soon".
+    Their names are draft copy in `src/features/profile/placeholders.ts`.
 - **Settings** (the gear, top left):
   - Switches for vibration, keeping the screen awake during a session, and showing
     the best possible score.
@@ -68,10 +82,12 @@ Mark the pins **still standing**; everything else fell.
 
 | Path | Holds |
 | --- | --- |
-| `src/app/` | Routes: `(tabs)/progress`, `(tabs)/add` (the ＋ button's slot, never shown) and `(tabs)/index` (Home), in that order in the tab bar, `(tabs)/bestiary` (hidden), `settings` (opened from the gear), `session/[id]` (live scoring), `game/[id]` (past game's report), `leave/[mask]` (one monster, as a sheet) |
-| `src/components/` | `PinDeck`, `FrameStrip`, `ScoringPad`, `XpBar`, `LevelCard`, `GameReportView`, `SettingRow`, `MiniRack`, `MonsterRow` |
+| `src/app/` | Routes: `(tabs)/progress`, `(tabs)/add` (the ＋ button's slot, never shown) and `(tabs)/index` (Home), in that order in the tab bar, `(tabs)/bestiary` (hidden), `settings` (opened from the gear), `profile/index` and `profile/edit` (from the avatar), `session/[id]` (live scoring), `game/[id]` (past game's report), `leave/[mask]` (one monster, as a sheet) |
+| `src/components/` | `PinDeck`, `FrameStrip`, `ScoringPad`, `XpBar`, `LevelCard`, `GameReportView`, `SettingRow`, `Avatar`, `ProfileSections`, `FormField`, `StatTile`, `LineChart`, `ChartCard`, `MiniRack`, `MonsterRow` |
 | `src/features/live-scoring/` | The throw-entry rules (`entry.ts`) and the game hook (`use-live-game.ts`) |
 | `src/features/history/` | Loads stored games and derives scores, XP, levels and reports with `@bowling-rpg/progression` |
+| `src/features/progress/` | How Progress presents numbers: deltas, tiles, chart scales |
+| `src/features/profile/` | The profile provider, the edit form's rules, and the badge and achievement placeholders |
 | `src/features/settings/` | The settings provider, `useHaptics` (the only place that calls expo-haptics), and export |
 | `src/features.ts` | Switches for built-but-hidden features |
 | `src/db/` | SQLite migrations and every query: games, settings, export and delete |
@@ -83,6 +99,10 @@ time a game is loaded, the same code the server runs.
 
 **IDs** are UUIDv7. A session's ID becomes its sync `clientId`.
 
+**Charts** are drawn with `react-native-svg`, which is in Expo Go. Their colours are
+the `chart` tokens in `src/theme.ts`, checked with a colour-blind-safety validator
+against the card surface. Re-run it if you change them.
+
 **Settings** live in their own SQLite table as JSON values over defaults, so adding a
 setting needs no migration: add it to `DEFAULT_SETTINGS` in `src/db/settings.ts`.
 
@@ -93,7 +113,7 @@ them. There's no import yet.
 ## Tests
 
 ```sh
-pnpm test    # 83 tests: throw entry, components, hooks, XP, settings, export, navigation, and the real SQL
+pnpm test    # 121 tests: throw entry, components, hooks, XP, settings, export, navigation, and the real SQL
 pnpm lint
 ```
 
