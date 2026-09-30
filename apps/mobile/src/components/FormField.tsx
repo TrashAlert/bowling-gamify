@@ -25,11 +25,22 @@ export function FormField({ label, hint, error, ...input }: FormFieldProps) {
   );
 }
 
-/** Text button for a navigation header: Edit, Save, Cancel. */
-export function HeaderButton({ label, onPress, disabled = false, bold = false }: { label: string; onPress: () => void; disabled?: boolean; bold?: boolean }) {
+export interface HeaderButtonProps {
+  readonly label: string;
+  readonly onPress: () => void;
+  readonly disabled?: boolean;
+  readonly bold?: boolean;
+  /** Red, for actions that remove something. */
+  readonly destructive?: boolean;
+}
+
+/** Text button for a navigation header: Edit, Save, Cancel, Delete. */
+export function HeaderButton({ label, onPress, disabled = false, bold = false, destructive = false }: HeaderButtonProps) {
   return (
     <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" hitSlop={space.sm} style={styles.headerButton}>
-      <Text style={[styles.headerText, bold && styles.headerBold, disabled && { opacity: 0.4 }]}>{label}</Text>
+      <Text style={[styles.headerText, bold && styles.headerBold, destructive && styles.headerDestructive, disabled && { opacity: 0.4 }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -53,4 +64,5 @@ const styles = StyleSheet.create({
   headerButton: { minHeight: touch.min, justifyContent: 'center', paddingHorizontal: space.sm },
   headerText: { color: colors.accent, fontSize: font.body },
   headerBold: { fontWeight: '700' },
+  headerDestructive: { color: colors.danger },
 });

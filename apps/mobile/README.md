@@ -19,6 +19,10 @@ The Expo app (SDK 57, React Native, Expo Router). It works fully offline:
 
 - **Home:** your level, a Start/Resume button, and your recent games. Games that took
   you to a new level are marked ★. Tap a game for its report.
+- **Deleting a game:** **Delete** in a game report's header removes the game and its
+  balls, after a confirmation that names the XP it takes away. Later games in that
+  session move up a number. Since XP, levels and stats are recomputed from the
+  stored balls, the deleted game drops out of all of them, and your level can go down.
 - **Progress tab:** stats and trends over finished games. The list of games lives
   only on Home.
   - **Totals:** Games, Average and Best.
@@ -115,7 +119,7 @@ them. There's no import yet.
 ## Tests
 
 ```sh
-pnpm test    # 123 tests: throw entry, components, hooks, XP, settings, export, navigation, and the real SQL
+pnpm test    # 132 tests: throw entry, components, hooks, XP, settings, export, navigation, and the real SQL
 pnpm lint
 ```
 

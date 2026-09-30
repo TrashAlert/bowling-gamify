@@ -80,6 +80,34 @@ export async function removeLastDelivery(db: Db, gameId: string): Promise<void> 
 }
 
 /**
+ * Deletes one game and its balls. Later games in the same session move up a
+ * number (deleting Game 2 of 3 makes Game 3 the new Game 2), and a session left
+ * with no games goes too. XP, levels and stats need no clean-up: they're
+ * recomputed from the balls that remain.
+ */
+export async function deleteGame(db: Db, gameId: string): Promise<void> {
+  const game = await db.getFirstAsync<{ session_id: string; game_number: number }>(
+    'SELECT session_id, game_number FROM games WHERE id = ?',
+    gameId,
+  );
+  if (!game) return;
+
+  await db.withExclusiveTransactionAsync(async (txn) => {
+    // Its deliveries go with it (ON DELETE CASCADE).
+    await txn.runAsync('DELETE FROM games WHERE id = ?', gameId);
+    // Two steps, because SQLite checks UNIQUE (session_id, game_number) row by row:
+    // shifting 3 → 2 while 2 still exists would fail. Park them out of range first.
+    await txn.runAsync(
+      'UPDATE games SET game_number = game_number + 1000 WHERE session_id = ? AND game_number > ?',
+      game.session_id,
+      game.game_number,
+    );
+    await txn.runAsync('UPDATE games SET game_number = game_number - 1001 WHERE session_id = ? AND game_number > 1000', game.session_id);
+    await txn.runAsync('DELETE FROM sessions WHERE id = ? AND NOT EXISTS (SELECT 1 FROM games WHERE session_id = ?)', game.session_id, game.session_id);
+  });
+}
+
+/**
  * Closes the session. Games with no balls are dropped (the server requires at
  * least one), and a session left with no games is dropped entirely.
  */
